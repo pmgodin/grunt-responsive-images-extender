@@ -34,7 +34,7 @@ module.exports = function(grunt) {
     var parseAndExtendImg = function(filepath) {
       var content = grunt.file.read(filepath);
       var $ = cheerio.load(content, {decodeEntities: false});
-      var imgElems = $('img:not(' + options.ignore.join(', ') + ')');
+      var imgElems = $('img:not(' + options.ignore.join(', ') + '), source:not(' + options.ignore.join(', ') + ')');
 
       imgElems.each(function() {
         var normalizeImagePath = function(src) {
@@ -126,7 +126,7 @@ module.exports = function(grunt) {
 
         var imgElem = $(this);
         var imgWidth = imgElem.attr('width');
-        var imgSrc = imgElem.attr('src');
+        var imgSrc = imgElem.attr('src') || imgElem.attr('srcset');
 
         var useSizes = 'sizes' in options;
         var isResponsive = imgWidth === undefined;
@@ -136,6 +136,11 @@ module.exports = function(grunt) {
         var imagePath;
         var imageMatches;
         var srcMap;
+
+        if(imgElem[0].name == "source"){
+          imgSrc = imgSrc.split(",")[0].split(" ")[0];
+          hasSrcset = false;
+        }
 
         if (hasSrcset && (!isResponsive || (isResponsive && hasSizes) || !useSizes)) {
           return;
